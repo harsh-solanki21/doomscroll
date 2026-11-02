@@ -1,56 +1,63 @@
-# Welcome to your Expo app 👋
+# Doomscroll
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+An Expo (SDK 58) / React Native app. iOS is the main platform (iPhone only), and Android is supported.
 
-## Get started
+## Requirements
 
-1. Install dependencies
+- Node (version in `.nvmrc`; run `nvm use`)
+- pnpm (version in the `packageManager` field of `package.json`)
+- Xcode with an iOS Simulator for local iOS builds, or an EAS account for cloud builds
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Getting started
 
 ```bash
-npm run reset-project
+pnpm install
+pnpm expo run:ios   # first time: build and install the development build on the iOS Simulator
+pnpm ios            # afterwards: start Metro and open the installed build
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
+The app uses a **development build** (`expo-dev-client`), not Expo Go. After you add a library with native code, rebuild with `pnpm expo run:ios` or `pnpm dlx eas-cli@latest build --profile development`.
 
-### Other setup steps
+Copy secrets into a local `.env`, which git ignores. Only variables prefixed with `EXPO_PUBLIC_` reach the app, and they end up in the bundle, so never put secrets in them.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+## Scripts
 
-## Learn more
+| Script              | What it does                                             |
+| ------------------- | -------------------------------------------------------- |
+| `pnpm start`        | Start the Metro dev server                               |
+| `pnpm ios`          | Start the dev server and open iOS                        |
+| `pnpm android`      | Start the dev server and open Android                    |
+| `pnpm lint`         | ESLint and Prettier, zero warnings allowed               |
+| `pnpm typecheck`    | `tsc --noEmit`                                           |
+| `pnpm format`       | Format everything with Prettier                          |
+| `pnpm format:check` | Check formatting without writing                         |
+| `pnpm doctor`       | Check dependency versions against the SDK, `expo-doctor` |
 
-To learn more about developing your project with Expo, look at the following resources:
+Add packages with `pnpm expo install <pkg>`, not `pnpm add`, so they get SDK-compatible versions.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Stack
 
-## Join the community
+- **Routing**: Expo Router (`src/app/`), with typed routes
+- **Styling**: NativeWind v4 (Tailwind CSS v3) with dark mode
+- **Data**: TanStack Query (server state), Zustand (client state), MMKV (storage), SecureStore (secrets), each added when first needed
+- **Animation**: Reanimated and Gesture Handler
+- **React Compiler** is enabled, so don't memoize by hand
 
-Join our community of developers creating universal apps.
+## Quality gates
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **Pre-commit**: commitlint (Conventional Commits) and lint-staged (ESLint and Prettier on staged files)
+- **Pre-push**: `pnpm typecheck`
+- **CI** (GitHub Actions): lint, typecheck, format check and `pnpm doctor`
+
+## Releases (EAS)
+
+Build profiles: `development`, `preview` and `production` (`eas.json`). Build numbers are managed remotely by EAS and auto-incremented on production builds.
+
+```bash
+pnpm dlx eas-cli@latest build --profile production --platform ios
+pnpm dlx eas-cli@latest submit --platform ios
+```
+
+## Conventions
+
+The code style, folder structure and project rules live in [`CLAUDE.md`](./CLAUDE.md). Read it before contributing.
