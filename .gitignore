@@ -42,11 +42,6 @@ coverage/
 # editors
 .idea/
 
-# AI
-.agent/
-AGENT.md
-CLAUDE.md
-
 # generated native folders
 /ios
 /android
